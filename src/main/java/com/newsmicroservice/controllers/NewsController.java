@@ -34,7 +34,7 @@ public class NewsController {
         return NewsService.getNewsByStock(stock);
     }
 
-    @GetMapping("/frontpage")
+    @GetMapping()
     public List<News> getFrontPageNews() {
         return NewsService.getFrontPageNews();
     }
