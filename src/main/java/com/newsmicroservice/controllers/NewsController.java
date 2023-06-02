@@ -18,6 +18,9 @@ public class NewsController {
 
     private final NewsService newsService;
 
+    private final Object lock = new Object();
+    private boolean freezeFlag = false;
+
     @Autowired
     MQSender mqSender;
 
@@ -72,15 +75,50 @@ public class NewsController {
 //        return "Message sent to the RabbitMQ Successfully";
 //    }
 
+    @PostMapping("/freeze")
+    public boolean freeze() {
+        System.out.print("checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" + " " + freezeFlag );
+
+        synchronized (lock) {
+            freezeFlag = true;
+            newsService.freeze();
+        }
+        return freezeFlag;
+    }
+
+    @PostMapping("/unfreeze")
+    public boolean unfreeze() {
+        System.out.print("checkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" + " " + freezeFlag );
+
+        synchronized (lock) {
+            freezeFlag = false;
+            lock.notifyAll();
+            newsService.unfreeze();
+        }
+        return freezeFlag;
+    }
+
 
     @GetMapping("/{stock}")
-    public List<News> getNewsByStock(@PathVariable String stock) {
-        return newsService.getNewsByStock(stock);
+    public Object getNewsByStock(@PathVariable String stock) {
+
+        synchronized (lock) {
+            if (freezeFlag) {
+                // Return an error response indicating that the application is frozen
+                return "App is frozen" ;
+            } else {
+        return newsService.getNewsByStock(stock); }}
     }
 
     @GetMapping()
-    public List<News> getFrontPageNews() {
-        return newsService.getFrontPageNews();
+    public Object getFrontPageNews() {
+        synchronized (lock) {
+            if (freezeFlag) {
+                // Return an error response indicating that the application is frozen
+                return "App is frozen" ;
+            } else {
+        return newsService.getFrontPageNews(); }}
+
     }
     //    public List<News> getNews() {
 //        return NewsService.getAllNews();
