@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.newsmicroservice.collections.*;
 import com.newsmicroservice.repositories.NewsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,18 +40,19 @@ public class NewsService {
         this.NewsRepository = NewsRepository;
         this.restTemplate = restTemplate;
     }
-
+    @Cacheable("allNews")
     public List<News> getAllNews() {
         List<News> result = NewsRepository.findAll();
         System.out.println(result);
         return result;
     }
 
+    @Cacheable("newsByStock")
     public List<News> getNewsByStock(String stock) {
         Pageable pageable = PageRequest.of(0, 6);
         return NewsRepository.findByStock(stock, pageable);
     }
-
+    @Cacheable("frontPageNews")
     public List<News> getFrontPageNews() {
         Pageable pageable = PageRequest.of(0, 10);
         return NewsRepository.findLatestNews(pageable);
