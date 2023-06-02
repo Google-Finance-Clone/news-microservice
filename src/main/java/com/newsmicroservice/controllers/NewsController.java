@@ -27,7 +27,7 @@ public class NewsController {
     }
 
 
-    @RabbitListener(queues = "newsSender")
+    @RabbitListener(queues = "newsSender1")
     public String receiveMessage(String message) {
 
         System.out.println("message received");

@@ -15,7 +15,7 @@ public class mqconfig {
 
     @Bean
     public Queue queue(){
-        return new Queue("newsSender");
+        return new Queue("newsSender1");
     }
 
     @Bean
