@@ -6,11 +6,13 @@ import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
+
 @Data
 @Document
 @NoArgsConstructor
 @ToString
-public class News {
+public class News implements Serializable {
     @Id
     private String id;
     private String headline;
