@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("stocks1/config")
+@RequestMapping("news/config")
 public class ConfigController {
 
     @Autowired
