@@ -5,12 +5,16 @@ import com.google.gson.JsonParser;
 import com.newsmicroservice.collections.*;
 import com.newsmicroservice.repositories.NewsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 @Service
@@ -19,6 +23,8 @@ public class NewsService {
 
     private final NewsRepository NewsRepository;
     private final RestTemplate restTemplate;
+    private final int initialThreadCount;
+    private ExecutorService threadPool;
 
 //    public String fetchStockData() {
 //        //   String url = "https://api.polygon.io/v1/open-close/TSLA/2023-01-09?adjusted=true&";
@@ -36,10 +42,37 @@ public class NewsService {
 //    }
 
     @Autowired
-    public NewsService(NewsRepository NewsRepository, RestTemplate restTemplate) {
+    public NewsService(NewsRepository NewsRepository, RestTemplate restTemplate, @Value("${app.thread-count}") int initialThreadCount) {
         this.NewsRepository = NewsRepository;
         this.restTemplate = restTemplate;
+        this.initialThreadCount = initialThreadCount;
+        threadPool = Executors.newFixedThreadPool(initialThreadCount);
+        System.out.println("valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" + " " +threadPool  );
+        System.out.println("2222222222222222222222222222222222222222222"+ " "+ initialThreadCount);
+
     }
+
+    public void freeze() {
+        // release resources
+//        releaseDatabaseConnections();
+        stopThreads();
+    }
+
+    public void unfreeze() {
+        // acquire resources
+//        acquireDatabaseConnections();
+        startThreads();
+    }
+
+
+    public void stopThreads() {
+        threadPool.shutdown();
+    }
+
+    public void startThreads() {
+        threadPool = Executors.newFixedThreadPool(initialThreadCount);
+    }
+
     @Cacheable("allNews")
     public List<News> getAllNews() {
         List<News> result = NewsRepository.findAll();
